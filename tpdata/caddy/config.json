@@ -1,0 +1,127 @@
+{
+    "admin": {
+        "disabled": true
+    },
+    "logging": {
+        "logs": {
+            "default": {
+                "writer": {
+                    "output": "file",
+                    "filename": "/VPS/tpdata/caddy/logs/error.log"
+                },
+                "level": "ERROR"
+            }
+        }
+    },
+    "storage": {
+        "module": "file_system",
+        "root": "/VPS/ssl/"
+    },
+    "apps": {
+        "http": {
+            "http_port": 80,
+            "servers": {
+                "srv0": {
+                    "listen": [
+                        ":80"
+                    ],
+                    "routes": [
+                        {
+                            "match": [
+                                {
+                                    "host": [
+                                        "ahua.vpn.com"
+                                    ]
+                                }
+                            ],
+                            "handle": [
+                                {
+                                    "handler": "static_response",
+                                    "headers": {
+                                        "Location": [
+                                            "https://{http.request.host}:8863{http.request.uri}"
+                                        ]
+                                    },
+                                    "status_code": 301
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "srv1": {
+                    "listen": [
+                        ":8863"
+                    ],
+                    "routes": [
+                        {
+                            "handle": [
+                                {
+                                    "handler": "subroute",
+                                    "routes": [
+                                        {
+                                            "match": [
+                                                {
+                                                    "host": [
+                                                        "ahua.vpn.com"
+                                                    ]
+                                                }
+                                            ],
+                                            "handle": [
+                                                {
+                                                    "handler": "file_server",
+                                                    "root": "/VPS/tpdata/web/",
+                                                    "index_names": [
+                                                        "index.html",
+                                                        "index.htm"
+                                                    ]
+                                                }
+                                            ],
+                                            "terminal": true
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "tls_connection_policies": [
+                        {
+                            "match": {
+                                "sni": [
+                                    "ahua.vpn.com"
+                                ]
+                            }
+                        }
+                    ],
+                    "automatic_https": {
+                        "disable": true
+                    }
+                }
+            }
+        },
+        "tls": {
+            "certificates": {
+                "automate": [
+                    "ahua.vpn.com"
+                ],
+                "load_files": [
+                    {
+                        "certificate": "/VPS/ssl/server.cer",
+                        "key": "/VPS/ssl/server.key"
+                    }
+                ]
+            },
+            "automation": {
+                "policies": [
+                    {
+                        "issuers": [
+                            {
+                                "module": "acme",
+                                "email": ""
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+
+  trojan-panel-mariadb:
+    image: mariadb:10.7.3
+    container_name: trojan-panel-mariadb
+    restart: always
+    network_mode: host
+    environment:
+      MYSQL_DATABASE: trojan_panel_db
+      MYSQL_ROOT_PASSWORD: "admin123"
+      TZ: Asia/Shanghai
+    command: --port=9507
+
+  trojan-panel-redis:
+    image: redis:6.2.7
+    container_name: trojan-panel-redis
+    restart: always
+    network_mode: host
+    command: redis-server --requirepass admin123 --port 6378
+
+  trojan-panel:
+    image: jonssonyan/trojan-panel
+    container_name: trojan-panel
+    restart: always
+    network_mode: host
+    volumes:
+      - "/VPS/tpdata/web/:/tpdata/trojan-panel/webfile/"
+      - "/VPS/tpdata/trojan-panel/logs/:/tpdata/trojan-panel/logs/"
+      - "/VPS/tpdata/trojan-panel/export:/tpdata/trojan-panel/export"
+      - "/VPS/tpdata/trojan-panel/template:/tpdata/trojan-panel/template"
+      - "/etc/localtime:/etc/localtime"
+    environment:
+      - "GIN_MODE=release"
+      - "mariadb_ip=127.0.0.1"
+      - "mariadb_port=9507"
+      - "mariadb_user=root"
+      - "mariadb_pas=admin123"
+      - "redis_host=127.0.0.1"
+      - "redis_port=6378"
+      - "redis_pass=admin123"
+      - "server_port=8081"
+
+  trojan-panel-core:
+    image: jonssonyan/trojan-panel-core
+    container_name: trojan-panel-core
+    restart: always
+    network_mode: host
+    volumes:
+      - "/VPS/tpdata/trojan-panel-core/bin/xray/config:/tpdata/trojan-panel-core/bin/xray/config"
+      - "/VPS/tpdata/trojan-panel-core/bin/trojango/config:/tpdata/trojan-panel-core/bin/trojango/config"
+      - "/VPS/tpdata/trojan-panel-core/bin/hysteria/config:/tpdata/trojan-panel-core/bin/hysteria/config"
+      - "/VPS/tpdata/trojan-panel-core/bin/naiveproxy/config:/tpdata/trojan-panel-core/bin/naiveproxy/config"
+      - "/VPS/tpdata/trojan-panel-core/logs/:/tpdata/trojan-panel-core/logs/"
+      - "/VPS/tpdata/trojan-panel-core/config/sqlite/:/tpdata/trojan-panel-core/config/sqlite/"
+      - "/VPS/ssl/:/VPS/ssl/"
+      - "/VPS/tpdata/web/:/VPS/tpdata/web/"
+      - "/etc/localtime:/etc/localtime"
+    environment:
+      - "GIN_MODE=release"
+      - "mariadb_ip=127.0.0.1"
+      - "mariadb_port=9507"
+      - "mariadb_user=root"
+      - "mariadb_pas=admin123"
+      - "database=trojan_panel_db"
+      - "account-table=account"
+      - "redis_host=127.0.0.1"
+      - "redis_port=6378"
+      - "redis_pass=admin123"
+      - "crt_path=/VPS/ssl/server.cer"
+      - "key_path=/VPS/ssl/server.key"
+      - "grpc_port=8100"
+      - "server_port=8082"
