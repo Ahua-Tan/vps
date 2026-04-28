@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  trojan-panel-core:
+    image: jonssonyan/trojan-panel-core
+    container_name: trojan-panel-core
+    restart: always
+    network_mode: host
+    volumes:
+      - "${VPS_ROOT}/tpdata/trojan-panel-core/bin/xray/config:/tpdata/trojan-panel-core/bin/xray/config"
+      - "${VPS_ROOT}/tpdata/trojan-panel-core/bin/trojango/config:/tpdata/trojan-panel-core/bin/trojango/config"
+      - "${VPS_ROOT}/tpdata/trojan-panel-core/bin/hysteria/config:/tpdata/trojan-panel-core/bin/hysteria/config"
+      - "${VPS_ROOT}/tpdata/trojan-panel-core/bin/naiveproxy/config:/tpdata/trojan-panel-core/bin/naiveproxy/config"
+      - "${VPS_ROOT}/tpdata/trojan-panel-core/logs/:/tpdata/trojan-panel-core/logs/"
+      - "${VPS_ROOT}/tpdata/trojan-panel-core/config/sqlite/:/tpdata/trojan-panel-core/config/sqlite/"
+      - "${VPS_ROOT}/ssl/:/VPS/ssl/"
+      - "${VPS_ROOT}/tpdata/web/:/VPS/tpdata/web/"
+      - "/etc/localtime:/etc/localtime"
+    environment:
+      - "GIN_MODE=release"
+      - "mariadb_ip=${MAIN_NODE}"
+      - "mariadb_port=9507"
+      - "mariadb_user=root"
+      - "mariadb_pas=${DB_PASSWORD}"
+      - "database=trojan_panel_db"
+      - "account-table=account"
+      - "redis_host=${MAIN_NODE}"
+      - "redis_port=6378"
+      - "redis_pass=${REDIS_PASSWORD}"
+      - "crt_path=${VPS_ROOT}/ssl/server.cer"
+      - "key_path=${VPS_ROOT}/ssl/server.key"
+      - "grpc_port=8100"
+      - "server_port=8082"

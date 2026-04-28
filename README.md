@@ -1,11 +1,14 @@
-# 科学上网搭建
+# VPS setup
 
-```
-# 一键启动主节点
-docker-compose up -d
+```bash
+# Run from the compose directory so .env and relative bind mounts work.
+cd core
 
-# 启动子节点core
-docker-compose -f docker-compose-core.yml up -d
+# Start the main node.
+docker compose -f docker-compose.yaml up -d --force-recreate
+
+# Start a core-only node.
+docker compose -f docker-compose-core.yml up -d --force-recreate
 ```
 
 ![alt text](image.png)
