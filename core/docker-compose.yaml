@@ -10,6 +10,10 @@ services:
       MYSQL_DATABASE: trojan_panel_db
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Shanghai
+    volumes:
+      - "${VPS_ROOT}/tpdata/mariadb/data:/var/lib/mysql"
+      - "${VPS_ROOT}/tpdata/mariadb/logs:/var/log/mysql"
+      - "${VPS_ROOT}/tpdata/mariadb/conf.d:/etc/mysql/conf.d"
     command: --port=9507
 
   trojan-panel-redis:
@@ -17,7 +21,14 @@ services:
     container_name: trojan-panel-redis
     restart: always
     network_mode: host
-    command: redis-server --requirepass ${REDIS_PASSWORD} --port 6378
+    volumes:
+      - "${VPS_ROOT}/tpdata/redis/data:/data"
+      - "${VPS_ROOT}/tpdata/redis/redis.conf:/usr/local/etc/redis/redis.conf"
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+      - --requirepass ${REDIS_PASSWORD}
+      - --port 6378
 
   trojan-panel:
     image: jonssonyan/trojan-panel
